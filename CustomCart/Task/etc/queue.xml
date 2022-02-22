@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework-message-queue:etc/queue.xsd">
+    <broker topic="customcart.create" exchange="magento-db" type="db">
+        <queue name="customcart.create" consumer="customcart.create" consumerInstance="Magento\Framework\MessageQueue\Consumer" handler="CustomCart\Task\Model\Consumer::process"/>
+    </broker>
+</config>
