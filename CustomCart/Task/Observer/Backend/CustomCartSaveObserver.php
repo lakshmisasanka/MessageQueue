@@ -12,12 +12,14 @@ class CustomCartSaveObserver implements ObserverInterface
         \Magento\Framework\Message\ManagerInterface $messageManager,
         \Magento\Checkout\Model\Session $checkoutSession,              
         \Magento\Framework\MessageQueue\PublisherInterface $publisher,
-        \Magento\Framework\Serialize\SerializerInterface $serializer     
+        \Magento\Framework\Serialize\SerializerInterface $serializer,
+        \CustomCart\Task\Api\Data\CustomCartInterface $customCart    
     ) {
         $this->_messageManager = $messageManager;
         $this->_checkoutSession = $checkoutSession;        
         $this->publisher = $publisher;
         $this->serializer = $serializer;
+        $this->customCart = $customCart;
        
     }
 
@@ -27,18 +29,20 @@ class CustomCartSaveObserver implements ObserverInterface
         try {
             $sku = $observer->getEvent()->getData('product')->getSku();
             $quote = $this->_checkoutSession->getQuote();
+            $this->customCart->setSku($sku);
+            $this->customCart->setQuoteId($quote->getId());
+            $this->customCart->setCustomerId($quote->getCustomerId());
             
-            $data = array(
+           /* $data = array(
                 'sku' => $sku,
                 'quote_id' => $quote->getId(),
                 'customer_id' => $quote->getCustomerId()
-            );
+            );*/
                      
             $this->publisher->publish(
-                'customcart.create',
-                $this->serializer->serialize($data)
+                'customcart.create', $this->customCart
             ); 
-            if ($data) {
+            if ($sku) {
                 $this->_messageManager->addSuccess(
                     __('Message is added to queue!!')
                 );
